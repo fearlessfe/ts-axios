@@ -1,5 +1,11 @@
 import axios, { AxiosError } from '../../src/index'
 
+interface ResponseData<T = any> {
+  code: number
+  result: T
+  message: string
+}
+
 axios({
   url: '/extend/post',
   method: 'post',
