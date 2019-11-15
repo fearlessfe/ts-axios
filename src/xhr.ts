@@ -1,19 +1,49 @@
-import {AxiosRequestConfig} from './types';
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types';
+import { parseHeaders } from './helpers/headers'
+import { transformResponse } from './helpers/data'
 
-export default function xhr(config: AxiosRequestConfig): void {
-  const { data = null, url, method = 'get', headers } = config;
+export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
-  const request  = new XMLHttpRequest()
+  return new Promise((resolve, reject) => {
+    const { data = null, url, method = 'get', headers, responseType } = config;
 
-  request.open(method.toUpperCase(), url, true)
+    const request  = new XMLHttpRequest()
 
-  Object.keys(headers).forEach(name => {
-    if(data === null && name.toLowerCase() === 'content-type') {
-      delete headers[name]
-    } else {
-      request.setRequestHeader(name, headers[name])
+    if(responseType) {
+      request.responseType = responseType
+    }
+
+    request.open(method.toUpperCase(), url, true)
+
+    Object.keys(headers).forEach(name => {
+      if(data === null && name.toLowerCase() === 'content-type') {
+        delete headers[name]
+      } else {
+        request.setRequestHeader(name, headers[name])
+      }
+    })
+
+    request.send(data)
+
+    request.onreadystatechange = function handleLoad () {
+      if(request.readyState !== 4) {
+        return
+      }
+      const responseHeaders = parseHeaders(request.getAllResponseHeaders())
+      // 根据responseType来获取返回的数据
+      const responseData = responseType !== 'text' ? request.response : request.responseText
+
+      const response: AxiosResponse = {
+        data: transformResponse(responseData),
+        // data: responseData,
+        status: request.status,
+        statusText: request.statusText,
+        headers: responseHeaders,
+        config,
+        request
+      }
+      resolve(response)
     }
   })
 
-  request.send(data)
 }
