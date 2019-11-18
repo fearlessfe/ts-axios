@@ -1,39 +1,30 @@
-import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
+import { AxiosRequestConfig, AxiosPromise } from '../types'
 import xhr from './xhr'
 import { buildURL } from '../helpers/url'
-import { transformRequest, transformResponse } from '../helpers/data'
+import { transformRequest } from '../helpers/data'
 import { processHeaders } from '../helpers/headers'
 
-export default function dispatchRequest<T = any>(config: AxiosRequestConfig): AxiosPromise<T> {
-  // Todo
+export default function dispatchRequest (config: AxiosRequestConfig): AxiosPromise {
+  // todo
   processConfig(config)
-  return xhr(config).then(res => {
-    return transformResponseData(res)
-  })
+  return xhr(config)
 }
 
-function processConfig(config: AxiosRequestConfig): void {
-  config.url = transformURL(config)
+function processConfig(config: AxiosRequestConfig) : void {
+  config.url = transformURL(config)   // 处理params
   config.headers = transformHeaders(config)
-  config.data = transformRequestData(config)
+  config.data = transformRequestData(config)   // 处理data
 }
 
-function transformURL(config: AxiosRequestConfig): string {
-  const { url, params } = config
-
-  return buildURL(url!, params)
+function transformURL(config: AxiosRequestConfig) : string {
+  return buildURL(config.url!, config.params)
 }
 
 function transformRequestData(config: AxiosRequestConfig): any {
   return transformRequest(config.data)
 }
 
-function transformHeaders(config: AxiosRequestConfig): any {
+function transformHeaders (config: AxiosRequestConfig): any {
   const { headers = {}, data } = config
-  return processHeaders(headers, data)
-}
-
-function transformResponseData(res: AxiosResponse): AxiosResponse {
-  res.data = transformResponse(res.data)
-  return res
+  return processHeaders(headers, data);
 }
