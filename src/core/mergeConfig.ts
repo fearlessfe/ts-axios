@@ -31,7 +31,7 @@ stratKeysFromVal2.forEach(key => {
   strats[key] = fromVal2Strat
 })
 
-const stratKeysDeepMerge = ['header']
+const stratKeysDeepMerge = ['headers']
 
 stratKeysDeepMerge.forEach(key => {
   strats[key] = deepMergeStrat
@@ -41,7 +41,6 @@ export default function mergeConfig(config1: AxiosRequestConfig, config2: AxiosR
   if(!config2) {
     config2 = {}
   }
-
   const config = Object.create(null);
 
   for(let key in config2) {
