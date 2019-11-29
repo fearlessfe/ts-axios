@@ -21,7 +21,8 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       xrsfHeaderName,
       onDownloadProgress,
       onUploadProgress,
-      auth
+      auth,
+      validateStatus
     } = config;
 
     const request  = new XMLHttpRequest()
@@ -38,10 +39,9 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
     request.send(data)
 
-    // 识别FormData
 
     function handleResponse(response: AxiosResponse): void {
-      if(response.status>=200 && response.status < 300) {
+      if(validateStatus!(response.status)) {
         resolve(response)
       } else {
         reject(createError(`Request failed with status code ${response.status}`, config, null, request, response))
@@ -74,7 +74,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
         const responseHeaders = parseHeaders(request.getAllResponseHeaders())
         // 根据responseType来获取返回的数据
         const responseData = responseType !== 'text' ? request.response : request.responseText
-
+        console.log(request)
         const response: AxiosResponse = {
           // data: transformResponse(responseData),
           data: responseData,
@@ -106,6 +106,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
     }
 
     function processHeaders():void {
+      // 识别FormData
       if(isFormData(data)) {
         delete headers['Content-Type']
       }
