@@ -1,10 +1,9 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import xhr from './xhr'
-import { buildURL } from '../helpers/url'
+import { buildURL, combineURL, isAbsoluteURL } from '../helpers/url'
 // import { transformRequest } from '../helpers/data'
 import { processHeaders, flattenHeaders } from '../helpers/headers'
 import transform from './transform'
-import { isAbsoluteURL, combineURL } from '../helpers/util'
 
 export default function dispatchRequest (config: AxiosRequestConfig): AxiosPromise {
   // todo

@@ -16,7 +16,7 @@ function normalizeHeaderName (headers: any, normalizeName: string) : void {
 export function processHeaders(headers: any, data: any) : any {
   if(isObject(data)) {
     normalizeHeaderName(headers, 'Content-Type');
-    if(headers && headers['Content-Type']) {
+    if(headers && !headers['Content-Type']) {
       headers['Content-Type'] = 'application/json;charset=utf-8'
     }
   }
@@ -30,11 +30,12 @@ export function parseHeaders (headers: string) : any {
   }
 
   headers.split('\r\n').forEach((line) => {
-    let [key, val] = line.split(':');
+    let [key, ...vals] = line.split(':');
     key = key.trim().toLowerCase();
     if(!key) {
       return
     }
+    let val = vals.join(':').trim()
     if(val) {
       val = val.trim()
     }
@@ -47,15 +48,12 @@ export function flattenHeaders(headers: any, method: Method): any {
   if(!headers) {
     return headers
   }
-  let flattenHeaders = deepMerge(headers.common, headers[method]);
+  let flattenHeaders = deepMerge(headers, headers.common, headers[method]);
 
   const methodsDelete = ['delete', 'get', 'head', 'options', 'post', 'put', 'common', 'patch']
 
   methodsDelete.forEach(method => {
-    delete headers[method]
+    delete flattenHeaders[method]
   })
-  return {
-    ...flattenHeaders,
-    ...headers
-  };
+  return flattenHeaders;
 }
